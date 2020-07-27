@@ -1,29 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ChatRoom.css";
-import Message from "./Message";
-import {
-  TextField,
-  FormControl,
-  AppBar,
-  IconButton,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
+import Message from "./components/Message";
+import NavBar from "./components/NavBar";
+import { useParams } from "react-router-dom";
+import { TextField, FormControl, IconButton } from "@material-ui/core";
 import db from "./firebase";
 import firebase from "firebase";
 import FlipMove from "react-flip-move";
-
 import SendIcon from "@material-ui/icons/Send";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 
 function ChatRoom() {
   const [input, setInput] = useState("");
+  const [roomDetail, setRoomDetail] = useState([]);
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
+  const { id } = useParams();
 
+  // get room name
+  useEffect(() => {
+    var getName = db.collection("rooms").doc(id);
+
+    getName.get().then((doc) => {
+      setRoomDetail(doc.data());
+    });
+  }, []);
+
+  // store message object to database
   const sendMessage = (e) => {
     e.preventDefault();
-    db.collection("messages").add({
+    db.collection("rooms").doc(id).collection("messages").add({
       message: input,
       username,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -35,7 +40,9 @@ function ChatRoom() {
   // get data from firebase database
   useEffect(() => {
     // get the specific collection from database
-    db.collection("messages")
+    db.collection("rooms")
+      .doc(id)
+      .collection("messages")
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) => {
         // snapshot == documents
@@ -48,7 +55,7 @@ function ChatRoom() {
   // get username
   useEffect(() => {
     setUsername(prompt("Please Enter Your Username"));
-    // setUsername("Dev");
+    //setUsername("Dev");
   }, []);
 
   // scroll to bottom when new message loaded
@@ -59,14 +66,7 @@ function ChatRoom() {
 
   return (
     <div className="chatroom">
-      <AppBar position="fixed">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu">
-            <ArrowBackIosIcon />
-          </IconButton>
-          <Typography variant="h6">Chatting</Typography>
-        </Toolbar>
-      </AppBar>
+      <NavBar title={roomDetail.roomName} position="fixed" goBack />
 
       <div className="messages">
         <FlipMove>

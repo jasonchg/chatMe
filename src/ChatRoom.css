@@ -1,0 +1,29 @@
+.chatroom {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.messages {
+  min-height: calc(100vh - 70px);
+}
+
+.chatroom__form {
+  height: 50px;
+  z-index: 1;
+  background-color: #e9e9eb;
+  box-shadow: 2px 2px 2px grey;
+  padding: 10px;
+}
+.chatroom__formControl {
+  display: flex !important;
+  flex-direction: row !important;
+}
+.chatroom__input {
+  flex: 1;
+}
+
+.chatroom__iconButton {
+  flex: 0;
+}
